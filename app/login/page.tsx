@@ -71,7 +71,7 @@ export default function LoginPage() {
                         <div>
                             <label
                                 htmlFor='username'
-                                className='font-heading text-sm text-secondary mb-2 block'
+                                className='font-heading text-sm text-secondary dark:text-secondary-dark mb-2 block'
                             >
                                 Username
                             </label>
@@ -93,7 +93,7 @@ export default function LoginPage() {
                         <div>
                             <label
                                 htmlFor='password'
-                                className='font-heading text-sm text-secondary mb-2 block'
+                                className='font-heading text-sm text-secondary dark:text-secondary-dark mb-2 block'
                             >
                                 Password
                             </label>

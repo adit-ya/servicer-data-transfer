@@ -17,8 +17,13 @@ const cabin = Cabin({
 })
 
 export const metadata: Metadata = {
-    title: 'Loan Servicer Data Transfer',
+    title: 'swopl',
     description: 'YC S24',
+    icons: {
+        icon: '/favicon.ico',
+        shortcut: '/favicon-32x32.png',
+        apple: '/apple-touch-icon.png',
+    },
 }
 
 export default function RootLayout({
@@ -32,7 +37,7 @@ export default function RootLayout({
                 className={`${sometypeMono.variable} ${cabin.variable} antialiased`}
             >
                 <Navbar />
-                <main className='min-h-screen dark:bg-gray-900 bg-white py-20'>
+                <main className='min-h-screen dark:bg-gray-900 bg-white'>
                     {children}
                 </main>
             </body>

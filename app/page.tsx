@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import FieldMapper from '@/components/FieldMapper'
-import { RefreshCw } from 'lucide-react'
+import { CheckCircle, RefreshCw } from 'lucide-react'
 
 interface Field {
     id: string
@@ -19,6 +19,18 @@ export default function Home() {
     const [isLoading, setIsLoading] = useState(false)
     const [initialMappingsDone, setInitialMappingsDone] = useState(false)
     const [mappings, setMappings] = useState<Record<string, string>>({})
+    const [isSubmitted, setIsSubmitted] = useState(false)
+
+    useEffect(() => {
+        const storedSubmission = localStorage.getItem('isSubmitted')
+        if (storedSubmission) {
+            setIsSubmitted(JSON.parse(storedSubmission))
+        }
+    }, [])
+
+    useEffect(() => {
+        localStorage.setItem('isSubmitted', JSON.stringify(isSubmitted))
+    }, [isSubmitted])
 
     const apiFields = [
         { id: '1', name: 'pmt_amount' },
@@ -125,10 +137,34 @@ export default function Home() {
         setInitialMappingsDone(false)
     }
 
+    const handleSubmitMappings = (mappings: Record<string, string>) => {
+        console.log('Submitting mappings:', mappings)
+        setIsSubmitted(true)
+    }
+
+    if (isSubmitted) {
+        return (
+            <div className='min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 mx-6'>
+                <div className='max-w-md w-full p-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg text-center'>
+                    <div className='mb-6'>
+                        <CheckCircle className='w-16 h-16 mx-auto text-green-500' />
+                    </div>
+                    <h1 className='text-2xl font-heading text-gray-900 dark:text-white mb-4'>
+                        Thank you!
+                    </h1>
+                    <p className='text-gray-600 dark:text-gray-300'>
+                        You will receive a notification once your data has been
+                        processed and sent to a servicer.
+                    </p>
+                </div>
+            </div>
+        )
+    }
+
     return (
-        <div className='container mx-auto p-4'>
+        <div className='container mx-auto p-4 py-16'>
             <div className='w-full max-w-6xl mx-auto'>
-                <div className='flex justify-between items-center p-6'>
+                <div className='flex flex-col gap-4 md:flex-row justify-between md:items-center p-6'>
                     <div>
                         <h2 className='font-heading text-2xl text-primary mb-2'>
                             Field Mapping
@@ -169,6 +205,7 @@ export default function Home() {
                     onMapFields={handleMapFields}
                     initialMappings={mappings}
                     onResetMappings={handleResetMappings}
+                    onSubmitMappings={handleSubmitMappings}
                 />
             </div>
         </div>

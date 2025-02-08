@@ -14,6 +14,7 @@ interface FieldMapperProps {
     onMapFields: (sourceId: string, targetId: string) => void
     initialMappings?: Record<string, string>
     onResetMappings?: () => void
+    onSubmitMappings?: (mappings: Record<string, string>) => void
 }
 
 const FieldMapper: React.FC<FieldMapperProps> = ({
@@ -22,6 +23,7 @@ const FieldMapper: React.FC<FieldMapperProps> = ({
     onMapFields,
     initialMappings = {},
     onResetMappings = () => {},
+    onSubmitMappings = () => {},
 }) => {
     const [selectedSourceField, setSelectedSourceField] = useState<
         string | null
@@ -99,6 +101,8 @@ const FieldMapper: React.FC<FieldMapperProps> = ({
             })
             .filter((field): field is Field => field !== null)
     }
+
+    const allFieldsMapped = sourceFields.length === Object.keys(mappings).length
 
     return (
         <div className='w-full max-w-6xl mx-auto px-6'>
@@ -206,16 +210,27 @@ const FieldMapper: React.FC<FieldMapperProps> = ({
             </div>
 
             {Object.keys(mappings).length > 0 && (
-                <div className='mt-6 text-center'>
+                <div className='mt-6 flex justify-center gap-4'>
                     <button
                         onClick={onResetMappings}
                         className='inline-flex items-center space-x-2 px-6 py-3 bg-red-500 hover:bg-red-600 
-                            text-white font-heading rounded-lg transition-colors focus:outline-none 
-                            focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900'
+                text-white font-heading rounded-lg transition-colors focus:outline-none 
+                focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900'
                     >
                         <RefreshCw className='w-4 h-4' />
                         <span>Reset Mappings</span>
                     </button>
+
+                    {allFieldsMapped && onSubmitMappings && (
+                        <button
+                            onClick={() => onSubmitMappings(mappings)}
+                            className='inline-flex items-center space-x-2 px-6 py-3 bg-green-500 hover:bg-green-600 
+                    text-white font-heading rounded-lg transition-colors focus:outline-none 
+                    focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900'
+                        >
+                            <span>Submit Mappings</span>
+                        </button>
+                    )}
                 </div>
             )}
         </div>
