@@ -11,18 +11,33 @@ interface FieldMapperProps {
     sourceFields: Field[]
     targetFields: Field[]
     onMapFields: (sourceId: string, targetId: string) => void
+    initialMappings: Record<string, string>
+    onResetMappings: () => void
 }
 
 const FieldMapper: React.FC<FieldMapperProps> = ({
     sourceFields,
     targetFields,
     onMapFields,
+    initialMappings,
+    onResetMappings,
 }) => {
     const [selectedSourceField, setSelectedSourceField] = useState<
         string | null
     >(null)
-    const [mappings, setMappings] = useState<Record<string, string>>({})
+    const [mappings, setMappings] =
+        useState<Record<string, string>>(initialMappings)
     const [orderedTargetFields, setOrderedTargetFields] = useState(targetFields)
+
+    useEffect(() => {
+        setMappings(initialMappings)
+        const reordered = reorderTargetFields(
+            targetFields,
+            initialMappings,
+            sourceFields
+        )
+        setOrderedTargetFields(reordered)
+    }, [initialMappings, sourceFields, targetFields])
 
     const handleSourceClick = (fieldId: string) => {
         setSelectedSourceField(fieldId)
@@ -43,12 +58,12 @@ const FieldMapper: React.FC<FieldMapperProps> = ({
             onMapFields(selectedSourceField, targetId)
             setSelectedSourceField(null)
 
-            const reorderedFields = reorderTargetFields(
+            const reordered = reorderTargetFields(
                 targetFields,
                 newMappings,
                 sourceFields
             )
-            setOrderedTargetFields(reorderedFields)
+            setOrderedTargetFields(reordered)
         }
     }
 
@@ -174,10 +189,7 @@ const FieldMapper: React.FC<FieldMapperProps> = ({
             {Object.keys(mappings).length > 0 && (
                 <div className='mt-4 text-center'>
                     <button
-                        onClick={() => {
-                            setMappings({})
-                            setOrderedTargetFields(targetFields)
-                        }}
+                        onClick={onResetMappings}
                         className='px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors'
                     >
                         Reset Mappings
