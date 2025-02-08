@@ -67,12 +67,14 @@ export async function POST(request: Request) {
                 { status: 500 }
             )
         }
-    } catch (error: any) {
+    } catch (error) {
         console.error('Error in GPT mapping:', error)
+
         return NextResponse.json(
             {
                 error: 'Failed to process mapping request',
-                details: error.message || 'Unknown error',
+                details:
+                    error instanceof Error ? error.message : 'Unknown error',
             },
             {
                 status: 500,

@@ -156,7 +156,7 @@ const FieldMapper: React.FC<FieldMapperProps> = ({
                                     const mappedSourceField = Object.entries(
                                         mappings
                                     ).find(
-                                        ([_, targetId]) => targetId === field.id
+                                        ([, targetId]) => targetId === field.id
                                     )
 
                                     return (

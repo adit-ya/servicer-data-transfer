@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react'
 import FieldMapper from '@/components/FieldMapper'
 import { CheckCircle, RefreshCw } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import Spinner from '@/components/Spinner'
+import { useAuth } from '@/hooks/useAuth'
 
 interface Field {
     id: string
@@ -16,10 +19,21 @@ interface GPTMapping {
 }
 
 export default function Home() {
+    const router = useRouter()
+    const { isLoggedIn } = useAuth()
     const [isLoading, setIsLoading] = useState(false)
     const [initialMappingsDone, setInitialMappingsDone] = useState(false)
     const [mappings, setMappings] = useState<Record<string, string>>({})
     const [isSubmitted, setIsSubmitted] = useState(false)
+    const [isChecking, setIsChecking] = useState(true)
+
+    useEffect(() => {
+        if (!isLoggedIn) {
+            router.push('/login')
+        } else {
+            setIsChecking(false)
+        }
+    }, [isLoggedIn, router])
 
     useEffect(() => {
         const storedSubmission = localStorage.getItem('isSubmitted')
@@ -31,6 +45,14 @@ export default function Home() {
     useEffect(() => {
         localStorage.setItem('isSubmitted', JSON.stringify(isSubmitted))
     }, [isSubmitted])
+
+    if (isChecking) {
+        return <Spinner />
+    }
+
+    if (!isLoggedIn) {
+        return null
+    }
 
     const apiFields = [
         { id: '1', name: 'pmt_amount' },

@@ -8,6 +8,7 @@ const sometypeMono = Sometype_Mono({
     variable: '--font-sometype-mono',
     weight: '600',
     display: 'swap',
+    subsets: ['latin'],
 })
 
 const cabin = Cabin({
