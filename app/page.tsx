@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import FieldMapper from '@/components/FieldMapper'
+import { RefreshCw } from 'lucide-react'
 
 interface Field {
     id: string
@@ -126,27 +127,50 @@ export default function Home() {
 
     return (
         <div className='container mx-auto p-4'>
-            <div className='mb-4 flex justify-center'>
-                <button
-                    onClick={handleAutoMap}
-                    disabled={isLoading || initialMappingsDone}
-                    className={`px-4 py-2 rounded ${
-                        isLoading || initialMappingsDone
-                            ? 'bg-gray-400'
-                            : 'bg-blue-500 hover:bg-blue-600'
-                    } text-white transition-colors`}
-                >
-                    {isLoading ? 'Mapping...' : 'Auto-Map Fields'}
-                </button>
-            </div>
+            <div className='w-full max-w-6xl mx-auto'>
+                <div className='flex justify-between items-center p-6'>
+                    <div>
+                        <h2 className='font-heading text-2xl text-primary mb-2'>
+                            Field Mapping
+                        </h2>
+                        <p className='font-body text-tertiary dark:text-tertiary-dark'>
+                            Map your source fields to the corresponding target
+                            fields
+                        </p>
+                    </div>
 
-            <FieldMapper
-                sourceFields={apiFields}
-                targetFields={yourFields}
-                onMapFields={handleMapFields}
-                initialMappings={mappings}
-                onResetMappings={handleResetMappings}
-            />
+                    <button
+                        onClick={handleAutoMap}
+                        disabled={isLoading || initialMappingsDone}
+                        className={`inline-flex items-center space-x-2 px-4 py-2 rounded-lg font-heading
+                        ${
+                            isLoading || initialMappingsDone
+                                ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
+                                : 'bg-secondary hover:bg-secondary-dark text-white hover:text-black transition-colors focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 dark:focus:ring-offset-gray-800'
+                        }`}
+                    >
+                        {isLoading ? (
+                            <>
+                                <RefreshCw className='w-4 h-4 animate-spin' />
+                                <span>Mapping...</span>
+                            </>
+                        ) : (
+                            <>
+                                <RefreshCw className='w-4 h-4' />
+                                <span>Auto-Map Fields</span>
+                            </>
+                        )}
+                    </button>
+                </div>
+
+                <FieldMapper
+                    sourceFields={apiFields}
+                    targetFields={yourFields}
+                    onMapFields={handleMapFields}
+                    initialMappings={mappings}
+                    onResetMappings={handleResetMappings}
+                />
+            </div>
         </div>
     )
 }

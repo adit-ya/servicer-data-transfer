@@ -1,15 +1,19 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 
-const geistSans = Geist({
-    variable: '--font-geist-sans',
-    subsets: ['latin'],
+import { Cabin, Sometype_Mono } from 'next/font/google'
+import Navbar from '@/components/NavBar'
+
+const sometypeMono = Sometype_Mono({
+    variable: '--font-sometype-mono',
+    weight: '600',
+    display: 'swap',
 })
 
-const geistMono = Geist_Mono({
-    variable: '--font-geist-mono',
+const cabin = Cabin({
     subsets: ['latin'],
+    variable: '--font-cabin',
+    display: 'swap',
 })
 
 export const metadata: Metadata = {
@@ -25,9 +29,12 @@ export default function RootLayout({
     return (
         <html lang='en'>
             <body
-                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+                className={`${sometypeMono.variable} ${cabin.variable} antialiased`}
             >
-                {children}
+                <Navbar />
+                <main className='min-h-screen dark:bg-gray-900 bg-white py-20'>
+                    {children}
+                </main>
             </body>
         </html>
     )

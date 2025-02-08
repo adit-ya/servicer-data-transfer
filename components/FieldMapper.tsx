@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { ArrowRight, RefreshCw } from 'lucide-react'
 
 interface Field {
     id: string
@@ -11,16 +12,16 @@ interface FieldMapperProps {
     sourceFields: Field[]
     targetFields: Field[]
     onMapFields: (sourceId: string, targetId: string) => void
-    initialMappings: Record<string, string>
-    onResetMappings: () => void
+    initialMappings?: Record<string, string>
+    onResetMappings?: () => void
 }
 
 const FieldMapper: React.FC<FieldMapperProps> = ({
     sourceFields,
     targetFields,
     onMapFields,
-    initialMappings,
-    onResetMappings,
+    initialMappings = {},
+    onResetMappings = () => {},
 }) => {
     const [selectedSourceField, setSelectedSourceField] = useState<
         string | null
@@ -100,99 +101,120 @@ const FieldMapper: React.FC<FieldMapperProps> = ({
     }
 
     return (
-        <div className='w-full max-w-4xl mx-auto p-4'>
-            <div className='flex justify-between gap-8'>
-                <div className='w-1/2 bg-white rounded-lg shadow-md p-4'>
-                    <h2 className='text-lg font-semibold mb-4'>
-                        Primary Fields
-                    </h2>
-                    <div className='space-y-2'>
-                        {sourceFields.map((field) => (
-                            <motion.div
-                                key={field.id}
-                                className={`p-3 rounded cursor-pointer transition-colors ${
-                                    selectedSourceField === field.id
-                                        ? 'bg-blue-500 text-white'
-                                        : mappings[field.id]
-                                        ? 'bg-green-100'
-                                        : 'bg-gray-100 hover:bg-gray-200'
-                                }`}
-                                onClick={() => handleSourceClick(field.id)}
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                            >
-                                {field.name}
-                            </motion.div>
-                        ))}
+        <div className='w-full max-w-6xl mx-auto px-6'>
+            <div className='flex flex-col md:flex-row justify-between gap-8'>
+                <div className='md:w-1/2'>
+                    <div className='bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6'>
+                        <h3 className='font-heading text-lg text-secondary dark:text-secondary-dark mb-4'>
+                            Source Fields
+                        </h3>
+                        <div className='space-y-2'>
+                            {sourceFields.map((field) => (
+                                <motion.div
+                                    key={field.id}
+                                    className={`p-4 rounded-lg cursor-pointer border transition-all
+                                        ${
+                                            selectedSourceField === field.id
+                                                ? 'bg-primary border-primary text-white'
+                                                : mappings[field.id]
+                                                ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                                                : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary'
+                                        }`}
+                                    onClick={() => handleSourceClick(field.id)}
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                >
+                                    <div className='flex items-center justify-between font-body'>
+                                        <span className='text-tertiary dark:text-tertiary-dark'>
+                                            {field.name}
+                                        </span>
+                                        {mappings[field.id] && (
+                                            <ArrowRight className='w-4 h-4 text-green-500' />
+                                        )}
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
-                <div className='w-1/2 bg-white rounded-lg shadow-md p-4'>
-                    <h2 className='text-lg font-semibold mb-4'>
-                        Backup Fields
-                    </h2>
-                    <div className='space-y-2'>
-                        <AnimatePresence>
-                            {orderedTargetFields.map((field) => {
-                                const isMapped = Object.values(
-                                    mappings
-                                ).includes(field.id)
-                                const mappedSourceField = Object.entries(
-                                    mappings
-                                ).find(([_, targetId]) => targetId === field.id)
+                <div className='md:w-1/2'>
+                    <div className='bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6'>
+                        <h3 className='font-heading text-lg text-secondary dark:text-secondary-dark mb-4'>
+                            Target Fields
+                        </h3>
+                        <div className='space-y-2'>
+                            <AnimatePresence>
+                                {orderedTargetFields.map((field) => {
+                                    const isMapped = Object.values(
+                                        mappings
+                                    ).includes(field.id)
+                                    const mappedSourceField = Object.entries(
+                                        mappings
+                                    ).find(
+                                        ([_, targetId]) => targetId === field.id
+                                    )
 
-                                return (
-                                    <motion.div
-                                        key={field.id}
-                                        layout
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -20 }}
-                                        transition={{
-                                            type: 'tween',
-                                            duration: 0.2,
-                                        }}
-                                        className={`p-3 rounded cursor-pointer transition-colors ${
-                                            isMapped
-                                                ? 'bg-green-100'
-                                                : 'bg-gray-100 hover:bg-gray-200'
-                                        }`}
-                                        onClick={() =>
-                                            handleTargetClick(field.id)
-                                        }
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                    >
-                                        <div className='flex justify-between'>
-                                            <span>{field.name}</span>
-                                            {mappedSourceField && (
-                                                <span className='text-sm text-gray-500'>
-                                                    ←{' '}
-                                                    {
-                                                        sourceFields.find(
-                                                            (f) =>
-                                                                f.id ===
-                                                                mappedSourceField[0]
-                                                        )?.name
-                                                    }
+                                    return (
+                                        <motion.div
+                                            key={field.id}
+                                            layout
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -20 }}
+                                            transition={{
+                                                type: 'spring',
+                                                stiffness: 300,
+                                                damping: 30,
+                                            }}
+                                            className={`p-4 rounded-lg cursor-pointer border transition-all
+                                                ${
+                                                    isMapped
+                                                        ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                                                        : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary'
+                                                }`}
+                                            onClick={() =>
+                                                handleTargetClick(field.id)
+                                            }
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                        >
+                                            <div className='flex justify-between items-center font-body'>
+                                                <span className='text-tertiary dark:text-tertiary-dark'>
+                                                    {field.name}
                                                 </span>
-                                            )}
-                                        </div>
-                                    </motion.div>
-                                )
-                            })}
-                        </AnimatePresence>
+                                                {mappedSourceField && (
+                                                    <span className='text-sm text-green-600 dark:text-green-400'>
+                                                        ←{' '}
+                                                        {
+                                                            sourceFields.find(
+                                                                (f) =>
+                                                                    f.id ===
+                                                                    mappedSourceField[0]
+                                                            )?.name
+                                                        }
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </motion.div>
+                                    )
+                                })}
+                            </AnimatePresence>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {Object.keys(mappings).length > 0 && (
-                <div className='mt-4 text-center'>
+                <div className='mt-6 text-center'>
                     <button
                         onClick={onResetMappings}
-                        className='px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors'
+                        className='inline-flex items-center space-x-2 px-6 py-3 bg-red-500 hover:bg-red-600 
+                            text-white font-heading rounded-lg transition-colors focus:outline-none 
+                            focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900'
                     >
-                        Reset Mappings
+                        <RefreshCw className='w-4 h-4' />
+                        <span>Reset Mappings</span>
                     </button>
                 </div>
             )}
