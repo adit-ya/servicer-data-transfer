@@ -18,6 +18,10 @@ interface GPTMapping {
     confidence: number
 }
 
+interface ColumnsResponse {
+    tables: string[]
+}
+
 export default function Home() {
     const router = useRouter()
     const { isLoggedIn } = useAuth()
@@ -26,6 +30,9 @@ export default function Home() {
     const [mappings, setMappings] = useState<Record<string, string>>({})
     const [isSubmitted, setIsSubmitted] = useState(false)
     const [isChecking, setIsChecking] = useState(true)
+    const [sourceFields, setSourceFields] = useState<Field[]>([])
+    const [isLoadingFields, setIsLoadingFields] = useState(true)
+    const [error, setError] = useState<string>('')
 
     useEffect(() => {
         if (!isLoggedIn) {
@@ -34,6 +41,47 @@ export default function Home() {
             setIsChecking(false)
         }
     }, [isLoggedIn, router])
+
+    useEffect(() => {
+        const fetchSourceFields = async () => {
+            try {
+                const response = await fetch(
+                    'http://127.0.0.1:8000/api/columns/',
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                )
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch source fields')
+                }
+
+                const data: ColumnsResponse = await response.json()
+
+                // Transform the array of strings into the Field interface format
+                const transformedFields: Field[] = data.tables.map(
+                    (fieldName, index) => ({
+                        id: (index + 1).toString(), // Generate sequential IDs
+                        name: fieldName,
+                    })
+                )
+
+                setSourceFields(transformedFields)
+                setError('')
+            } catch (err) {
+                setError(
+                    'Failed to load source fields. Please try again later.'
+                )
+                console.error('Error fetching source fields:', err)
+            } finally {
+                setIsLoadingFields(false)
+            }
+        }
+
+        fetchSourceFields()
+    }, [])
 
     useEffect(() => {
         const storedSubmission = localStorage.getItem('isSubmitted')
@@ -54,30 +102,70 @@ export default function Home() {
         return null
     }
 
-    const apiFields = [
-        { id: '1', name: 'pmt_amount' },
-        { id: '2', name: 'current_balance' },
-        { id: '3', name: 'purchase_date' },
-        { id: '4', name: 'orig_principal' },
-        { id: '5', name: 'customer_id' },
-        { id: '6', name: 'rate' },
-        { id: '7', name: 'borrower_name' },
-        { id: '8', name: 'loan_id' },
-        { id: '9', name: 'pmt_frequency' },
-        { id: '10', name: 'next_due_dt' },
-    ]
+    // const targetFields = [
+    //     { id: 'a', name: 'collateral_value' },
+    //     { id: 'b', name: 'rate_of_interest' },
+    //     { id: 'c', name: 'loan_id' },
+    //     { id: 'd', name: 'contact_number' },
+    //     { id: 'e', name: 'orig_date' },
+    //     { id: 'f', name: 'social_security_number' },
+    //     { id: 'g', name: 'doc_type' },
+    //     { id: 'h', name: 'pmt_frequency' },
+    //     { id: 'i', name: 'secondary_borrower_id' },
+    //     { id: 'j', name: 'email_address' },
+    //     { id: 'k', name: 'collateral_type' },
+    //     { id: 'l', name: 'principal_amount' },
+    //     { id: 'm', name: 'next_payment_date' },
+    //     { id: 'n', name: 'loan_condition' },
+    //     { id: 'o', name: 'pmt_amount' },
+    //     { id: 'p', name: 'current_balance' },
+    //     { id: 'q', name: 'document_url' },
+    //     { id: 'r', name: 'last_name' },
+    //     { id: 's', name: 'report_date' },
+    //     { id: 't', name: 'borrower_relationship' },
+    //     { id: 'u', name: 'first_name' },
+    //     { id: 'v', name: 'end_date' },
+    //     { id: 'w', name: 'asset_id' },
+    //     { id: 'x', name: 'primary_borrower_id' },
+    //     { id: 'y', name: 'mailing_address' },
+    //     { id: 'z', name: 'birth_date' },
+    //     { id: 'aa', name: 'past_due_status' },
+    //     { id: 'bb', name: 'product_type' },
+    //     { id: 'cc', name: 'annual_income' },
+    //     { id: 'dd', name: 'fico_score' },
+    // ]
 
-    const yourFields = [
-        { id: 'a', name: 'userId' },
-        { id: 'b', name: 'orderDate' },
-        { id: 'c', name: 'account_number' },
-        { id: 'd', name: 'customer_name' },
-        { id: 'e', name: 'initial_balance' },
-        { id: 'f', name: 'principal_balance' },
-        { id: 'g', name: 'scheduled_payment' },
-        { id: 'h', name: 'payment_schedule' },
-        { id: 'i', name: 'payment_due_date' },
-        { id: 'j', name: 'interest_rate' },
+    const targetFields = [
+        { id: 'a', name: 'document_type' },
+        { id: 'b', name: 'interest_rate' },
+        { id: 'c', name: 'origination_date' },
+        { id: 'd', name: 'payment_frequency' },
+        { id: 'e', name: 'co_borrower_id' },
+        { id: 'f', name: 'email' },
+        { id: 'g', name: 'collateral_type' },
+        { id: 'h', name: 'loan_amount' },
+        { id: 'i', name: 'payment_date' },
+        { id: 'j', name: 'loan_status' },
+        { id: 'k', name: 'payment_amount' },
+        { id: 'l', name: 'remaining_balance' },
+        { id: 'm', name: 'document_link' },
+        { id: 'n', name: 'collateral_value' },
+        { id: 'o', name: 'last_name' },
+        { id: 'p', name: 'last_reported_date' },
+        { id: 'q', name: 'relationship_to_borrower' },
+        { id: 'r', name: 'first_name' },
+        { id: 's', name: 'maturity_date' },
+        { id: 't', name: 'vin_or_property_id' },
+        { id: 'u', name: 'borrower_id' },
+        { id: 'v', name: 'loan_id' },
+        { id: 'w', name: 'address' },
+        { id: 'x', name: 'ssn' },
+        { id: 'y', name: 'dob' },
+        { id: 'z', name: 'delinquency_status' },
+        { id: 'aa', name: 'loan_type' },
+        { id: 'ab', name: 'income' },
+        { id: 'ac', name: 'credit_score' },
+        { id: 'ad', name: 'phone_number' },
     ]
 
     const generatePrompt = (sourceFields: Field[], targetFields: Field[]) => {
@@ -108,7 +196,9 @@ export default function Home() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(generatePrompt(apiFields, yourFields)),
+                body: JSON.stringify(
+                    generatePrompt(sourceFields, targetFields)
+                ),
             })
 
             if (!response.ok) {
@@ -159,9 +249,62 @@ export default function Home() {
         setInitialMappingsDone(false)
     }
 
-    const handleSubmitMappings = (mappings: Record<string, string>) => {
-        console.log('Submitting mappings:', mappings)
-        setIsSubmitted(true)
+    const handleSubmitMappings = async (mappings: Record<string, string>) => {
+        try {
+            // Transform the mappings into the format we want to send
+            const mappedFields = Object.entries(mappings).map(
+                ([sourceId, targetId]) => {
+                    const sourceField = sourceFields.find(
+                        (field) => field.id === sourceId
+                    )
+                    const targetField = targetFields.find(
+                        (field) => field.id === targetId
+                    )
+
+                    return {
+                        source: sourceField?.name || 'unknown',
+                        target: targetField?.name || 'unknown',
+                    }
+                }
+            )
+
+            console.log('Sending mappings to backend:', mappedFields)
+
+            const response = await fetch(
+                'http://127.0.0.1:8000/api/field-mappings/',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        mappings: mappedFields,
+                    }),
+                }
+            )
+
+            if (!response.ok) {
+                throw new Error('Failed to submit mappings')
+            }
+
+            const data = await response.json()
+            console.log('Backend response:', data)
+
+            setIsSubmitted(true)
+        } catch (error) {
+            console.error('Error submitting mappings:', error)
+            alert('Failed to submit mappings. Please try again.')
+        }
+    }
+
+    if (isChecking || isLoadingFields) {
+        return <Spinner />
+    }
+
+    if (error) {
+        return (
+            <div className='p-4 text-red-500 bg-red-50 rounded-lg'>{error}</div>
+        )
     }
 
     if (isSubmitted) {
@@ -222,8 +365,8 @@ export default function Home() {
                 </div>
 
                 <FieldMapper
-                    sourceFields={apiFields}
-                    targetFields={yourFields}
+                    sourceFields={sourceFields}
+                    targetFields={targetFields}
                     onMapFields={handleMapFields}
                     initialMappings={mappings}
                     onResetMappings={handleResetMappings}
